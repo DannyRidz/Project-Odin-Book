@@ -100,6 +100,8 @@ app.use((request, response, next) => {
   response.redirect("/log-in");
 });
 
+app.use(express.static("public"));
+
 app.get("/", async (request, response) => {
   const follows = await prisma.follow.findMany({
     where: {
@@ -478,6 +480,60 @@ app.post("/posts/:id/comments", async (request, response) => {
   });
 
   response.redirect(postReturnPath(request));
+});
+
+app.get("/profile/setup", (request, response) => {
+  response.render("profile-setup", {
+    user: request.user,
+    error: null,
+  });
+});
+
+app.post("/profile/setup", async (request, response) => {
+  const displayName =
+    typeof request.body.displayName === "string"
+      ? request.body.displayName.trim()
+      : "";
+  const bio =
+    typeof request.body.bio === "string" ? request.body.bio.trim() : "";
+  const pictureInput =
+    typeof request.body.photoUrl === "string"
+      ? request.body.photoUrl.trim()
+      : "";
+
+  if (displayName.length < 1 || displayName.length > 50 || bio.length > 160) {
+    return response.status(400).render("profile-setup", {
+      user: request.user,
+      error:
+        "Use a display name up to 50 characters and a bio up to 160 characters.",
+    });
+  }
+
+  const data = { displayName, bio };
+
+  if (!request.user.photoUrl && pictureInput) {
+    try {
+      const pictureUrl = new URL(pictureInput);
+
+      if (pictureUrl.protocol !== "https:" || pictureInput.length > 2048) {
+        throw new Error("Invalid picture URL");
+      }
+
+      data.photoUrl = pictureUrl.href;
+    } catch {
+      return response.status(400).render("profile-setup", {
+        user: request.user,
+        error: "Use a valid HTTPS URL for your picture.",
+      });
+    }
+  }
+
+  await prisma.user.update({
+    where: { id: request.user.id },
+    data,
+  });
+
+  response.redirect("/profile/setup");
 });
 
 app.use((error, _request, response, _next) => {
