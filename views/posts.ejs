@@ -25,10 +25,7 @@
     <% } %>
 
     <% for (const post of posts) { %>
-      <article>
-        <p><%= post.content %></p>
-        <small><%= post.createdAt.toLocaleString() %></small>
-      </article>
-    <% } %>
+  <%- include("partials/post", { post, showActions: false }) %>
+<% } %>
   </body>
 </html>

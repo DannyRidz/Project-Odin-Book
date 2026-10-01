@@ -1,0 +1,48 @@
+<article>
+  <p>
+    <strong><%= post.author.displayName %></strong>
+    (@<%= post.author.username %>)
+  </p>
+  <p><%= post.content %></p>
+  <small><%= post.createdAt.toLocaleString() %></small>
+  <p><%= post._count.likes %> likes</p>
+
+  <h3>Comments (<%= post._count.comments %>)</h3>
+  <% if (post.comments.length === 0) { %>
+    <p>No comments yet.</p>
+  <% } %>
+  <% for (const comment of post.comments) { %>
+    <p>
+      <strong><%= comment.author.displayName %></strong>
+      (@<%= comment.author.username %>):
+      <%= comment.content %>
+    </p>
+  <% } %>
+
+  <% if (showActions) { %>
+    <form action="/posts/<%= post.id %>/comments" method="post">
+      <label for="comment-<%= post.id %>">Write a comment</label>
+      <br>
+      <textarea
+        id="comment-<%= post.id %>"
+        name="content"
+        rows="2"
+        cols="50"
+        maxlength="500"
+        required
+      ></textarea>
+      <br>
+      <button type="submit">Comment</button>
+    </form>
+
+    <% if (post.likes.length > 0) { %>
+      <form action="/posts/<%= post.id %>/unlike" method="post">
+        <button type="submit">Unlike</button>
+      </form>
+    <% } else { %>
+      <form action="/posts/<%= post.id %>/like" method="post">
+        <button type="submit">Like</button>
+      </form>
+    <% } %>
+  <% } %>
+</article>

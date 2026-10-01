@@ -307,11 +307,35 @@ app.post("/connections/:id/unfollow", async (request, response) => {
   response.redirect("/connections");
 });
 
+function postIncludes(userId) {
+  return {
+    author: {
+      select: { username: true, displayName: true },
+    },
+    comments: {
+      orderBy: { createdAt: "asc" },
+      include: {
+        author: {
+          select: { username: true, displayName: true },
+        },
+      },
+    },
+    likes: {
+      where: { userId },
+      select: { id: true },
+    },
+    _count: {
+      select: { likes: true, comments: true },
+    },
+  };
+}
+
 app.get("/posts", async (request, response) => {
   const posts = await prisma.post.findMany({
     where: { authorId: request.user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
+    include: postIncludes(request.user.id),
   });
 
   response.render("posts", { posts, error: null });
@@ -326,6 +350,7 @@ app.post("/posts", async (request, response) => {
       where: { authorId: request.user.id },
       orderBy: { createdAt: "desc" },
       take: 50,
+      include: postIncludes(request.user.id),
     });
 
     return response.status(400).render("posts", {
@@ -348,18 +373,7 @@ app.get("/explore", async (request, response) => {
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
     take: 50,
-    include: {
-      author: {
-        select: { username: true, displayName: true },
-      },
-      likes: {
-        where: { userId: request.user.id },
-        select: { id: true },
-      },
-      _count: {
-        select: { likes: true, comments: true },
-      },
-    },
+    include: postIncludes(request.user.id),
   });
 
   response.render("explore", { posts });

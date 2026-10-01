@@ -13,41 +13,7 @@
     <% } %>
 
     <% for (const post of posts) { %>
-      <article>
-        <p>
-          <strong><%= post.author.displayName %></strong>
-          (@<%= post.author.username %>)
-        </p>
-        <p><%= post.content %></p>
-        <small><%= post.createdAt.toLocaleString() %></small>
-        <p><%= post._count.likes %> likes</p>
-
-        <p><%= post._count.comments %> comments</p>
-<form action="/posts/<%= post.id %>/comments" method="post">
-  <label for="comment-<%= post.id %>">Write a comment</label>
-  <br>
-  <textarea
-    id="comment-<%= post.id %>"
-    name="content"
-    rows="2"
-    cols="50"
-    maxlength="500"
-    required
-  ></textarea>
-  <br>
-  <button type="submit">Comment</button>
-</form>
-
-        <% if (post.likes.length > 0) { %>
-          <form action="/posts/<%= post.id %>/unlike" method="post">
-            <button type="submit">Unlike</button>
-          </form>
-        <% } else { %>
-          <form action="/posts/<%= post.id %>/like" method="post">
-            <button type="submit">Like</button>
-          </form>
-        <% } %>
-      </article>
+      <%- include("partials/post", { post, showActions: true }) %>
     <% } %>
   </body>
 </html>
