@@ -22,6 +22,22 @@
         <small><%= post.createdAt.toLocaleString() %></small>
         <p><%= post._count.likes %> likes</p>
 
+        <p><%= post._count.comments %> comments</p>
+<form action="/posts/<%= post.id %>/comments" method="post">
+  <label for="comment-<%= post.id %>">Write a comment</label>
+  <br>
+  <textarea
+    id="comment-<%= post.id %>"
+    name="content"
+    rows="2"
+    cols="50"
+    maxlength="500"
+    required
+  ></textarea>
+  <br>
+  <button type="submit">Comment</button>
+</form>
+
         <% if (post.likes.length > 0) { %>
           <form action="/posts/<%= post.id %>/unlike" method="post">
             <button type="submit">Unlike</button>

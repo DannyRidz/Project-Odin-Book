@@ -357,7 +357,7 @@ app.get("/explore", async (request, response) => {
         select: { id: true },
       },
       _count: {
-        select: { likes: true },
+        select: { likes: true, comments: true },
       },
     },
   });
@@ -404,6 +404,39 @@ app.post("/posts/:id/unlike", async (request, response) => {
     where: {
       userId: request.user.id,
       postId,
+    },
+  });
+
+  response.redirect("/explore");
+});
+
+app.post("/posts/:id/comments", async (request, response) => {
+  const postId = Number(request.params.id);
+  const content =
+    typeof request.body.content === "string" ? request.body.content.trim() : "";
+
+  if (!Number.isSafeInteger(postId) || postId < 1) {
+    return response.sendStatus(404);
+  }
+
+  if (content.length < 1 || content.length > 500) {
+    return response
+      .status(400)
+      .send("Write a comment between 1 and 500 characters.");
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { id: true },
+  });
+
+  if (!post) return response.sendStatus(404);
+
+  await prisma.comment.create({
+    data: {
+      postId,
+      authorId: request.user.id,
+      content,
     },
   });
 
