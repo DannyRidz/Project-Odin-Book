@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Sign in | Odin Book</title>
+  </head>
+  <body>
+    <h1>Sign in</h1>
+
+    <% if (error) { %>
+      <p role="alert">Invalid username or password.</p>
+    <% } %>
+
+    <form action="/log-in" method="post">
+      <label>
+        Username
+        <input name="username" required>
+      </label>
+      <label>
+        Password
+        <input name="password" type="password" required>
+      </label>
+      <button type="submit">Sign in</button>
+    </form>
+
+    <p><a href="/sign-up">Create an account</a></p>
+  </body>
+</html>

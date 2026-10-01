@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Create an account | Odin Book</title>
+  </head>
+  <body>
+    <h1>Create an account</h1>
+
+    <% if (error) { %>
+      <p role="alert"><%= error %></p>
+    <% } %>
+
+    <form action="/sign-up" method="post">
+      <label>
+        Username
+        <input name="username" required minlength="3" maxlength="20">
+      </label>
+      <label>
+        Display name
+        <input name="displayName" required maxlength="50">
+      </label>
+      <label>
+        Password
+        <input name="password" type="password" required minlength="8">
+      </label>
+      <button type="submit">Create account</button>
+    </form>
+
+    <p><a href="/log-in">Already have an account? Sign in</a></p>
+  </body>
+</html>
