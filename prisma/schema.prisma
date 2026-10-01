@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  username         String    @unique
+  passwordHash     String
+  displayName      String
+  bio              String?
+  photoUrl         String?
+  isGuest          Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  posts            Post[]
+  comments         Comment[]
+  likes            Like[]
+  sentFollows      Follow[]  @relation("Follower")
+  receivedFollows  Follow[]  @relation("Following")
+}
+
+model Follow {
+  id           Int          @id @default(autoincrement())
+  followerId   Int
+  followingId  Int
+  status       FollowStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+
+  follower     User         @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User         @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Post {
+  id         Int       @id @default(autoincrement())
+  authorId   Int
+  content    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments   Comment[]
+  likes      Like[]
+}
+
+model Like {
+  id       Int   @id @default(autoincrement())
+  userId   Int
+  postId   Int
+
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id         Int       @id @default(autoincrement())
+  authorId   Int
+  postId     Int
+  content    String
+  createdAt  DateTime  @default(now())
+
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post       Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
