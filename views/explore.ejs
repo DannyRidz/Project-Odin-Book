@@ -6,6 +6,9 @@
   </head>
   <body>
     <h1>Explore posts</h1>
+    <% if (isGuest) { %>
+    <p>Guest preview is read-only. <a href="/sign-up">Create an account</a> to join in.</p>
+    <% } %>
     <p><a href="/">Home</a></p>
 
     <% if (posts.length === 0) { %>
@@ -15,7 +18,7 @@
     <% for (const post of posts) { %>
   <%- include("partials/post", {
     post,
-    showActions: true,
+    showActions: !isGuest,
     returnTo: "/explore"
   }) %>
 <% } %>

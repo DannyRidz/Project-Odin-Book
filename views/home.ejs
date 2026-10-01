@@ -12,12 +12,16 @@
       <button type="submit">Sign out</button>
     </form>
 
-    <p><a href="/connections">Connections</a></p>
-    <p><a href="/posts">My posts</a></p>
-    <p><a href="/explore">Explore posts</a></p>
-    <p><a href="/profile/setup">My profile</a></p>
-    <p><a href="/users/<%= user.username %>">View my profile</a></p>
-    <p><a href="/users">Find people</a></p>
+    <% if (user.isGuest) { %>
+  <p>Guest preview is read-only. <a href="/sign-up">Create an account</a> to post or follow people.</p>
+<% } else { %>
+  <p><a href="/connections">Connections</a></p>
+  <p><a href="/posts">My posts</a></p>
+  <p><a href="/profile/setup">My profile</a></p>
+  <p><a href="/users/<%= user.username %>">View my profile</a></p>
+<% } %>
+<p><a href="/explore">Explore posts</a></p>
+<p><a href="/users">Find people</a></p>
 
     <h2>Your feed</h2>
     <% if (posts.length === 0) { %>
@@ -27,7 +31,7 @@
     <% for (const post of posts) { %>
       <%- include("partials/post", {
         post,
-        showActions: true,
+        showActions: !user.isGuest,
         returnTo: "/"
       }) %>
     <% } %>

@@ -7,6 +7,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
+import { randomBytes } from "node:crypto";
 
 const databaseUrl = process.env.DATABASE_URL;
 const sessionSecret = process.env.SESSION_SECRET;
@@ -86,7 +87,7 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-const publicPaths = new Set(["/log-in", "/sign-up"]);
+const publicPaths = new Set(["/log-in", "/sign-up", "/guest"]);
 
 app.use((request, response, next) => {
   if (publicPaths.has(request.path)) {
@@ -98,6 +99,26 @@ app.use((request, response, next) => {
   }
 
   response.redirect("/log-in");
+});
+
+app.use((request, response, next) => {
+  if (!request.user?.isGuest) return next();
+
+  if (
+    request.method === "POST" &&
+    !["/log-out", "/log-in", "/sign-up"].includes(request.path)
+  ) {
+    return response.status(403).send("Guest preview is read-only.");
+  }
+
+  if (
+    request.method === "GET" &&
+    ["/connections", "/posts", "/profile/setup"].includes(request.path)
+  ) {
+    return response.redirect("/explore");
+  }
+
+  next();
 });
 
 app.use(express.static("public"));
@@ -177,6 +198,28 @@ app.post("/sign-up", async (request, response, next) => {
 
 app.get("/log-in", (request, response) => {
   response.render("login", { error: request.query.error === "1" });
+});
+
+app.post("/guest", async (request, response, next) => {
+  try {
+    const guest = await prisma.user.upsert({
+      where: { username: "guest-preview" },
+      update: {},
+      create: {
+        username: "guest-preview",
+        displayName: "Guest",
+        passwordHash: await bcrypt.hash(randomBytes(32).toString("hex"), 12),
+        isGuest: true,
+      },
+    });
+
+    request.logIn(guest, (error) => {
+      if (error) return next(error);
+      response.redirect("/explore");
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post(
@@ -426,7 +469,7 @@ app.get("/explore", async (request, response) => {
     include: postIncludes(request.user.id),
   });
 
-  response.render("explore", { posts });
+  response.render("explore", { posts, isGuest: request.user.isGuest });
 });
 
 app.post("/posts/:id/like", async (request, response) => {
@@ -588,6 +631,7 @@ app.get("/users", async (request, response) => {
     users,
     currentUserId: request.user.id,
     followByUserId,
+    isGuest: request.user.isGuest,
   });
 });
 

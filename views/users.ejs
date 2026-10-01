@@ -31,6 +31,8 @@
           <p>Following</p>
         <% } else if (followByUserId.get(person.id) === "PENDING") { %>
           <p>Request pending</p>
+          <% } else if (isGuest) { %>
+  <p>Create an account to follow this person.</p>
         <% } else { %>
           <form action="/connections/request" method="post">
             <input type="hidden" name="username" value="<%= person.username %>">
