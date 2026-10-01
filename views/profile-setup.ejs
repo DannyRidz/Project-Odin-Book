@@ -35,17 +35,15 @@
       <label for="bio">Bio</label>
       <textarea id="bio" name="bio" maxlength="160"><%= user.bio || '' %></textarea>
 
-      <% if (!user.photoUrl) { %>
-        <br>
-        <label for="photoUrl">Initial profile picture URL</label>
-        <input
-          id="photoUrl"
-          name="photoUrl"
-          type="url"
-          maxlength="2048"
-          placeholder="https://example.com/picture.jpg"
-        >
-      <% } %>
+      <br>
+<label for="photoUrl">New profile picture URL (leave blank to keep current)</label>
+<input
+  id="photoUrl"
+  name="photoUrl"
+  type="url"
+  maxlength="2048"
+  placeholder="https://example.com/picture.jpg"
+>
 
       <br>
       <button type="submit">Save profile</button>

@@ -536,7 +536,7 @@ app.post("/profile/setup", async (request, response) => {
 
   const data = { displayName, bio };
 
-  if (!request.user.photoUrl && pictureInput) {
+  if (pictureInput) {
     try {
       const pictureUrl = new URL(pictureInput);
 
