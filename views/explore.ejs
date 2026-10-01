@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Explore posts | Odin Book</title>
+  </head>
+  <body>
+    <h1>Explore posts</h1>
+    <p><a href="/">Home</a></p>
+
+    <% if (posts.length === 0) { %>
+      <p>No posts yet.</p>
+    <% } %>
+
+    <% for (const post of posts) { %>
+      <article>
+        <p>
+          <strong><%= post.author.displayName %></strong>
+          (@<%= post.author.username %>)
+        </p>
+        <p><%= post.content %></p>
+        <small><%= post.createdAt.toLocaleString() %></small>
+        <p><%= post._count.likes %> likes</p>
+
+        <% if (post.likes.length > 0) { %>
+          <form action="/posts/<%= post.id %>/unlike" method="post">
+            <button type="submit">Unlike</button>
+          </form>
+        <% } else { %>
+          <form action="/posts/<%= post.id %>/like" method="post">
+            <button type="submit">Like</button>
+          </form>
+        <% } %>
+      </article>
+    <% } %>
+  </body>
+</html>

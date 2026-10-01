@@ -344,6 +344,72 @@ app.post("/posts", async (request, response) => {
   response.redirect("/posts");
 });
 
+app.get("/explore", async (request, response) => {
+  const posts = await prisma.post.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    include: {
+      author: {
+        select: { username: true, displayName: true },
+      },
+      likes: {
+        where: { userId: request.user.id },
+        select: { id: true },
+      },
+      _count: {
+        select: { likes: true },
+      },
+    },
+  });
+
+  response.render("explore", { posts });
+});
+
+app.post("/posts/:id/like", async (request, response) => {
+  const postId = Number(request.params.id);
+
+  if (!Number.isSafeInteger(postId) || postId < 1) {
+    return response.sendStatus(404);
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { id: true },
+  });
+
+  if (!post) return response.sendStatus(404);
+
+  try {
+    await prisma.like.create({
+      data: {
+        userId: request.user.id,
+        postId,
+      },
+    });
+  } catch (error) {
+    if (error.code !== "P2002") throw error;
+  }
+
+  response.redirect("/explore");
+});
+
+app.post("/posts/:id/unlike", async (request, response) => {
+  const postId = Number(request.params.id);
+
+  if (!Number.isSafeInteger(postId) || postId < 1) {
+    return response.sendStatus(404);
+  }
+
+  await prisma.like.deleteMany({
+    where: {
+      userId: request.user.id,
+      postId,
+    },
+  });
+
+  response.redirect("/explore");
+});
+
 app.use((error, _request, response, _next) => {
   console.error(error);
   response.status(500).send("Something went wrong.");
