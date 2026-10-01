@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My posts | Odin Book</title>
+  </head>
+  <body>
+    <h1>My posts</h1>
+    <p><a href="/">Home</a></p>
+
+    <form action="/posts" method="post">
+      <label for="content">What would you like to share?</label>
+      <br>
+      <textarea id="content" name="content" rows="5" cols="50" maxlength="500" required></textarea>
+      <br>
+      <button type="submit">Post</button>
+    </form>
+
+    <% if (error) { %>
+      <p role="alert"><%= error %></p>
+    <% } %>
+
+    <% if (posts.length === 0) { %>
+      <p>You have not posted yet.</p>
+    <% } %>
+
+    <% for (const post of posts) { %>
+      <article>
+        <p><%= post.content %></p>
+        <small><%= post.createdAt.toLocaleString() %></small>
+      </article>
+    <% } %>
+  </body>
+</html>

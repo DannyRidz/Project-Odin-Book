@@ -307,6 +307,43 @@ app.post("/connections/:id/unfollow", async (request, response) => {
   response.redirect("/connections");
 });
 
+app.get("/posts", async (request, response) => {
+  const posts = await prisma.post.findMany({
+    where: { authorId: request.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  response.render("posts", { posts, error: null });
+});
+
+app.post("/posts", async (request, response) => {
+  const content =
+    typeof request.body.content === "string" ? request.body.content.trim() : "";
+
+  if (content.length < 1 || content.length > 500) {
+    const posts = await prisma.post.findMany({
+      where: { authorId: request.user.id },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+
+    return response.status(400).render("posts", {
+      posts,
+      error: "Write a post between 1 and 500 characters.",
+    });
+  }
+
+  await prisma.post.create({
+    data: {
+      authorId: request.user.id,
+      content,
+    },
+  });
+
+  response.redirect("/posts");
+});
+
 app.use((error, _request, response, _next) => {
   console.error(error);
   response.status(500).send("Something went wrong.");
