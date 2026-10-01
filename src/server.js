@@ -536,6 +536,38 @@ app.post("/profile/setup", async (request, response) => {
   response.redirect("/profile/setup");
 });
 
+app.get("/users/:username", async (request, response) => {
+  const username = request.params.username.toLowerCase();
+
+  const profileUser = await prisma.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      username: true,
+      displayName: true,
+      bio: true,
+      photoUrl: true,
+    },
+  });
+
+  if (!profileUser) {
+    return response.sendStatus(404);
+  }
+
+  const posts = await prisma.post.findMany({
+    where: { authorId: profileUser.id },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    include: postIncludes(request.user.id),
+  });
+
+  response.render("profile", {
+    profileUser,
+    posts,
+    isOwnProfile: profileUser.id === request.user.id,
+  });
+});
+
 app.use((error, _request, response, _next) => {
   console.error(error);
   response.status(500).send("Something went wrong.");

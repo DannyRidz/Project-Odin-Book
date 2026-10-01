@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title><%= profileUser.displayName %> | Odin Book</title>
+  </head>
+  <body>
+    <p><a href="/">Home</a></p>
+
+    <img
+      src="<%= profileUser.photoUrl || '/default-avatar.svg' %>"
+      alt="Profile picture for <%= profileUser.displayName %>"
+      width="100"
+      height="100"
+    >
+
+    <h1><%= profileUser.displayName %></h1>
+    <p>@<%= profileUser.username %></p>
+    <p><%= profileUser.bio || 'No bio yet.' %></p>
+
+    <% if (isOwnProfile) { %>
+      <p><a href="/profile/setup">Edit my profile</a></p>
+    <% } %>
+
+    <h2>Posts</h2>
+    <% if (posts.length === 0) { %>
+      <p>No posts yet.</p>
+    <% } %>
+
+    <% for (const post of posts) { %>
+      <%- include("partials/post", { post, showActions: false }) %>
+    <% } %>
+  </body>
+</html>

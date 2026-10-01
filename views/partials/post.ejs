@@ -1,6 +1,8 @@
 <article>
   <p>
-    <strong><%= post.author.displayName %></strong>
+    <strong>
+  <a href="/users/<%= post.author.username %>"><%= post.author.displayName %></a>
+</strong>
     (@<%= post.author.username %>)
   </p>
   <p><%= post.content %></p>
