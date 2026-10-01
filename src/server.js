@@ -101,8 +101,27 @@ app.use((request, response, next) => {
 });
 
 app.get("/", async (request, response) => {
-  const userCount = await prisma.user.count();
-  response.render("home", { user: request.user, userCount });
+  const follows = await prisma.follow.findMany({
+    where: {
+      followerId: request.user.id,
+      status: "ACCEPTED",
+    },
+    select: { followingId: true },
+  });
+
+  const authorIds = [
+    request.user.id,
+    ...follows.map((follow) => follow.followingId),
+  ];
+
+  const posts = await prisma.post.findMany({
+    where: { authorId: { in: authorIds } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    include: postIncludes(request.user.id),
+  });
+
+  response.render("home", { user: request.user, posts });
 });
 
 app.get("/sign-up", (_request, response) => {
@@ -330,6 +349,10 @@ function postIncludes(userId) {
   };
 }
 
+function postReturnPath(request) {
+  return request.body.returnTo === "/" ? "/" : "/explore";
+}
+
 app.get("/posts", async (request, response) => {
   const posts = await prisma.post.findMany({
     where: { authorId: request.user.id },
@@ -404,7 +427,7 @@ app.post("/posts/:id/like", async (request, response) => {
     if (error.code !== "P2002") throw error;
   }
 
-  response.redirect("/explore");
+  response.redirect(postReturnPath(request));
 });
 
 app.post("/posts/:id/unlike", async (request, response) => {
@@ -421,7 +444,7 @@ app.post("/posts/:id/unlike", async (request, response) => {
     },
   });
 
-  response.redirect("/explore");
+  response.redirect(postReturnPath(request));
 });
 
 app.post("/posts/:id/comments", async (request, response) => {
@@ -454,7 +477,7 @@ app.post("/posts/:id/comments", async (request, response) => {
     },
   });
 
-  response.redirect("/explore");
+  response.redirect(postReturnPath(request));
 });
 
 app.use((error, _request, response, _next) => {

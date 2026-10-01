@@ -32,15 +32,18 @@
         required
       ></textarea>
       <br>
+      <input type="hidden" name="returnTo" value="<%= returnTo %>">
       <button type="submit">Comment</button>
     </form>
 
     <% if (post.likes.length > 0) { %>
       <form action="/posts/<%= post.id %>/unlike" method="post">
+        <input type="hidden" name="returnTo" value="<%= returnTo %>">
         <button type="submit">Unlike</button>
       </form>
     <% } else { %>
       <form action="/posts/<%= post.id %>/like" method="post">
+        <input type="hidden" name="returnTo" value="<%= returnTo %>">
         <button type="submit">Like</button>
       </form>
     <% } %>

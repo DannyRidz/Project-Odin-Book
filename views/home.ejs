@@ -2,22 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Odin Book</title>
+    <title>Home feed | Odin Book</title>
   </head>
   <body>
     <h1>Odin Book</h1>
-    <p>Users: <%= userCount %></p>
+    <p>Signed in as <%= user.displayName %> (@<%= user.username %>).</p>
 
-    <% if (user) { %>
-      <p>Signed in as <%= user.displayName %> (@<%= user.username %>).</p>
-      <form action="/log-out" method="post">
-        <button type="submit">Sign out</button>
-      </form>
-      <p><a href="/connections">Connections</a></p>
-      <p><a href="/posts">My posts</a></p>
-      <p><a href="/explore">Explore posts</a></p>
-    <% } else { %>
-      <p><a href="/log-in">Sign in</a> or <a href="/sign-up">create an account</a>.</p>
+    <form action="/log-out" method="post">
+      <button type="submit">Sign out</button>
+    </form>
+
+    <p><a href="/connections">Connections</a></p>
+    <p><a href="/posts">My posts</a></p>
+    <p><a href="/explore">Explore posts</a></p>
+
+    <h2>Your feed</h2>
+    <% if (posts.length === 0) { %>
+      <p>No posts yet. Write a post or follow someone.</p>
+    <% } %>
+
+    <% for (const post of posts) { %>
+      <%- include("partials/post", {
+        post,
+        showActions: true,
+        returnTo: "/"
+      }) %>
     <% } %>
   </body>
 </html>
