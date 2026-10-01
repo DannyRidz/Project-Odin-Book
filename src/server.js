@@ -248,7 +248,9 @@ app.post("/connections/request", async (request, response) => {
     if (error.code !== "P2002") throw error;
   }
 
-  response.redirect("/connections");
+  response.redirect(
+    request.body.returnTo === "/users" ? "/users" : "/connections",
+  );
 });
 
 app.post("/connections/:id/accept", async (request, response) => {
@@ -534,6 +536,36 @@ app.post("/profile/setup", async (request, response) => {
   });
 
   response.redirect("/profile/setup");
+});
+
+app.get("/users", async (request, response) => {
+  const [users, follows] = await Promise.all([
+    prisma.user.findMany({
+      where: { isGuest: false },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        bio: true,
+        photoUrl: true,
+      },
+      orderBy: { username: "asc" },
+    }),
+    prisma.follow.findMany({
+      where: { followerId: request.user.id },
+      select: { followingId: true, status: true },
+    }),
+  ]);
+
+  const followByUserId = new Map(
+    follows.map((follow) => [follow.followingId, follow.status]),
+  );
+
+  response.render("users", {
+    users,
+    currentUserId: request.user.id,
+    followByUserId,
+  });
 });
 
 app.get("/users/:username", async (request, response) => {

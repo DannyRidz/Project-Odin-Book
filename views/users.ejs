@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>People | Odin Book</title>
+  </head>
+  <body>
+    <h1>People</h1>
+    <p><a href="/">Home</a> · <a href="/connections">Connections</a></p>
+
+    <% for (const person of users) { %>
+      <article>
+        <img
+          src="<%= person.photoUrl || '/default-avatar.svg' %>"
+          alt="Profile picture for <%= person.displayName %>"
+          width="60"
+          height="60"
+        >
+
+        <p>
+          <a href="/users/<%= person.username %>">
+            <strong><%= person.displayName %></strong>
+          </a>
+          (@<%= person.username %>)
+        </p>
+        <p><%= person.bio || 'No bio yet.' %></p>
+
+        <% if (person.id === currentUserId) { %>
+          <p>You</p>
+        <% } else if (followByUserId.get(person.id) === "ACCEPTED") { %>
+          <p>Following</p>
+        <% } else if (followByUserId.get(person.id) === "PENDING") { %>
+          <p>Request pending</p>
+        <% } else { %>
+          <form action="/connections/request" method="post">
+            <input type="hidden" name="username" value="<%= person.username %>">
+            <input type="hidden" name="returnTo" value="/users">
+            <button type="submit">Send follow request</button>
+          </form>
+        <% } %>
+      </article>
+    <% } %>
+  </body>
+</html>
