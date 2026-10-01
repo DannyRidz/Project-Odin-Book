@@ -371,8 +371,28 @@ app.get("/posts", async (request, response) => {
 app.post("/posts", async (request, response) => {
   const content =
     typeof request.body.content === "string" ? request.body.content.trim() : "";
+  const imageInput =
+    typeof request.body.imageUrl === "string"
+      ? request.body.imageUrl.trim()
+      : "";
 
-  if (content.length < 1 || content.length > 500) {
+  let imageUrl = null;
+  let imageIsValid = true;
+
+  if (imageInput) {
+    try {
+      const parsedUrl = new URL(imageInput);
+      imageIsValid =
+        ["http:", "https:"].includes(parsedUrl.protocol) &&
+        imageInput.length <= 2048;
+
+      if (imageIsValid) imageUrl = parsedUrl.href;
+    } catch {
+      imageIsValid = false;
+    }
+  }
+
+  if (content.length < 1 || content.length > 500 || !imageIsValid) {
     const posts = await prisma.post.findMany({
       where: { authorId: request.user.id },
       orderBy: { createdAt: "desc" },
@@ -382,7 +402,9 @@ app.post("/posts", async (request, response) => {
 
     return response.status(400).render("posts", {
       posts,
-      error: "Write a post between 1 and 500 characters.",
+      error: !imageIsValid
+        ? "Enter an image URL beginning with http:// or https://."
+        : "Write a post between 1 and 500 characters.",
     });
   }
 
@@ -390,6 +412,7 @@ app.post("/posts", async (request, response) => {
     data: {
       authorId: request.user.id,
       content,
+      imageUrl,
     },
   });
 

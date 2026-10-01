@@ -6,6 +6,16 @@
     (@<%= post.author.username %>)
   </p>
   <p><%= post.content %></p>
+  <% if (post.imageUrl) { %>
+  <p>
+    <img
+      src="<%= post.imageUrl %>"
+      alt="Image attached to this post"
+      loading="lazy"
+      style="max-width: 100%; height: auto;"
+    >
+  </p>
+<% } %>
   <small><%= post.createdAt.toLocaleString() %></small>
   <p><%= post._count.likes %> likes</p>
 
