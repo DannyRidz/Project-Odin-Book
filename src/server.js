@@ -86,6 +86,20 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+const publicPaths = new Set(["/log-in", "/sign-up"]);
+
+app.use((request, response, next) => {
+  if (publicPaths.has(request.path)) {
+    return next();
+  }
+
+  if (request.isAuthenticated()) {
+    return next();
+  }
+
+  response.redirect("/log-in");
+});
+
 app.get("/", async (request, response) => {
   const userCount = await prisma.user.count();
   response.render("home", { user: request.user, userCount });
@@ -164,6 +178,133 @@ app.post("/log-out", (request, response, next) => {
       response.redirect("/log-in");
     });
   });
+});
+
+app.get("/connections", async (request, response) => {
+  const userId = request.user.id;
+
+  const [following, incoming, outgoing] = await Promise.all([
+    prisma.follow.findMany({
+      where: { followerId: userId, status: "ACCEPTED" },
+      include: { following: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.follow.findMany({
+      where: { followingId: userId, status: "PENDING" },
+      include: { follower: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.follow.findMany({
+      where: { followerId: userId, status: "PENDING" },
+      include: { following: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  response.render("connections", { following, incoming, outgoing });
+});
+
+app.post("/connections/request", async (request, response) => {
+  const username =
+    typeof request.body.username === "string"
+      ? request.body.username.trim().toLowerCase()
+      : "";
+
+  const target = await prisma.user.findUnique({ where: { username } });
+
+  if (!target || target.id === request.user.id) {
+    return response.status(400).send("Choose another existing user.");
+  }
+
+  try {
+    await prisma.follow.create({
+      data: {
+        followerId: request.user.id,
+        followingId: target.id,
+      },
+    });
+  } catch (error) {
+    if (error.code !== "P2002") throw error;
+  }
+
+  response.redirect("/connections");
+});
+
+app.post("/connections/:id/accept", async (request, response) => {
+  const id = Number(request.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return response.sendStatus(404);
+  }
+
+  const result = await prisma.follow.updateMany({
+    where: {
+      id,
+      followingId: request.user.id,
+      status: "PENDING",
+    },
+    data: { status: "ACCEPTED" },
+  });
+
+  if (result.count === 0) return response.sendStatus(404);
+  response.redirect("/connections");
+});
+
+app.post("/connections/:id/decline", async (request, response) => {
+  const id = Number(request.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return response.sendStatus(404);
+  }
+
+  const result = await prisma.follow.deleteMany({
+    where: {
+      id,
+      followingId: request.user.id,
+      status: "PENDING",
+    },
+  });
+
+  if (result.count === 0) return response.sendStatus(404);
+  response.redirect("/connections");
+});
+
+app.post("/connections/:id/cancel", async (request, response) => {
+  const id = Number(request.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return response.sendStatus(404);
+  }
+
+  const result = await prisma.follow.deleteMany({
+    where: {
+      id,
+      followerId: request.user.id,
+      status: "PENDING",
+    },
+  });
+
+  if (result.count === 0) return response.sendStatus(404);
+  response.redirect("/connections");
+});
+
+app.post("/connections/:id/unfollow", async (request, response) => {
+  const id = Number(request.params.id);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return response.sendStatus(404);
+  }
+
+  const result = await prisma.follow.deleteMany({
+    where: {
+      id,
+      followerId: request.user.id,
+      status: "ACCEPTED",
+    },
+  });
+
+  if (result.count === 0) return response.sendStatus(404);
+  response.redirect("/connections");
 });
 
 app.use((error, _request, response, _next) => {

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Connections | Odin Book</title>
+  </head>
+  <body>
+    <h1>Connections</h1>
+    <p><a href="/">Home</a></p>
+
+    <h2>Request to follow someone</h2>
+    <form action="/connections/request" method="post">
+      <label>
+        Username
+        <input name="username" required>
+      </label>
+      <button type="submit">Send request</button>
+    </form>
+
+    <h2>Incoming requests</h2>
+    <% if (incoming.length === 0) { %>
+      <p>No incoming requests.</p>
+    <% } %>
+    <% for (const follow of incoming) { %>
+      <p>
+        <%= follow.follower.displayName %> (@<%= follow.follower.username %>)
+      </p>
+      <form action="/connections/<%= follow.id %>/accept" method="post">
+        <button type="submit">Accept</button>
+      </form>
+      <form action="/connections/<%= follow.id %>/decline" method="post">
+        <button type="submit">Decline</button>
+      </form>
+    <% } %>
+
+    <h2>Outgoing requests</h2>
+    <% if (outgoing.length === 0) { %>
+      <p>No outgoing requests.</p>
+    <% } %>
+    <% for (const follow of outgoing) { %>
+      <p>
+        Waiting for <%= follow.following.displayName %>
+        (@<%= follow.following.username %>)
+      </p>
+      <form action="/connections/<%= follow.id %>/cancel" method="post">
+        <button type="submit">Cancel request</button>
+      </form>
+    <% } %>
+
+    <h2>Following</h2>
+    <% if (following.length === 0) { %>
+      <p>You are not following anyone yet.</p>
+    <% } %>
+    <% for (const follow of following) { %>
+      <p>
+        <%= follow.following.displayName %>
+        (@<%= follow.following.username %>)
+      </p>
+      <form action="/connections/<%= follow.id %>/unfollow" method="post">
+        <button type="submit">Unfollow</button>
+      </form>
+    <% } %>
+  </body>
+</html>
