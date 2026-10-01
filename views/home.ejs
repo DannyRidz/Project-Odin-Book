@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <title>Home feed | Odin Book</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <h1>Odin Book</h1>
@@ -13,19 +15,23 @@
     </form>
 
     <% if (user.isGuest) { %>
-  <p>Guest preview is read-only. <a href="/sign-up">Create an account</a> to post or follow people.</p>
-<% } else { %>
-  <p><a href="/connections">Connections</a></p>
-  <p><a href="/posts">My posts</a></p>
-  <p><a href="/profile/setup">My profile</a></p>
-  <p><a href="/users/<%= user.username %>">View my profile</a></p>
-<% } %>
-<p><a href="/explore">Explore posts</a></p>
-<p><a href="/users">Find people</a></p>
+      <p>Guest preview is read-only. <a href="/sign-up">Create an account</a> to post or follow people.</p>
+    <% } else { %>
+      <p><a href="/connections">Connections</a></p>
+      <p><a href="/posts">My posts</a></p>
+      <p><a href="/profile/setup">My profile</a></p>
+      <p><a href="/users/<%= user.username %>">View my profile</a></p>
+    <% } %>
+    <p><a href="/explore">Explore posts</a></p>
+    <p><a href="/users">Find people</a></p>
 
     <h2>Your feed</h2>
     <% if (posts.length === 0) { %>
-      <p>No posts yet. Write a post or follow someone.</p>
+      <% if (user.isGuest) { %>
+        <p>No posts in this feed yet. Browse <a href="/explore">Explore</a> to see recent posts.</p>
+      <% } else { %>
+        <p>No posts yet. Write a post or follow someone.</p>
+      <% } %>
     <% } %>
 
     <% for (const post of posts) { %>

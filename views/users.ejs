@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <title>People | Odin Book</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <h1>People</h1>
-    <p><a href="/">Home</a> · <a href="/connections">Connections</a></p>
+    <p><a href="/">Home</a><% if (!isGuest) { %> · <a href="/connections">Connections</a><% } %></p>
+
+    <% if (users.length === 0) { %>
+      <p>No people have joined yet.</p>
+    <% } %>
 
     <% for (const person of users) { %>
       <article>
@@ -31,8 +37,8 @@
           <p>Following</p>
         <% } else if (followByUserId.get(person.id) === "PENDING") { %>
           <p>Request pending</p>
-          <% } else if (isGuest) { %>
-  <p>Create an account to follow this person.</p>
+        <% } else if (isGuest) { %>
+          <p>Create an account to follow this person.</p>
         <% } else { %>
           <form action="/connections/request" method="post">
             <input type="hidden" name="username" value="<%= person.username %>">

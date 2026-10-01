@@ -87,7 +87,7 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-const publicPaths = new Set(["/log-in", "/sign-up", "/guest"]);
+const publicPaths = new Set(["/log-in", "/sign-up", "/guest", "/styles.css"]);
 
 app.use((request, response, next) => {
   if (publicPaths.has(request.path)) {

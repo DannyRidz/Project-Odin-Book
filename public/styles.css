@@ -1,0 +1,140 @@
+:root {
+  --ink: #17213a;
+  --muted: #58657d;
+  --surface: #fff;
+  --line: #dce3ee;
+  --accent: #3156c8;
+  color: var(--ink);
+  background: #f4f7fb;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+h2 {
+  margin-top: 36px;
+}
+p {
+  overflow-wrap: anywhere;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: #203d9a;
+}
+
+article,
+body > form:not([action="/log-out"]) {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 18px #17213a0a;
+}
+
+article {
+  margin: 18px 0;
+}
+form {
+  margin: 16px 0;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 6px;
+}
+
+input:not([type="hidden"]),
+textarea {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  padding: 10px 12px;
+  border: 1px solid #b8c4d8;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #203d9a;
+}
+
+form[action="/log-out"] button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+img {
+  max-width: 100%;
+  border-radius: 12px;
+}
+article img[width] {
+  object-fit: cover;
+}
+small {
+  color: var(--muted);
+}
+
+[role="alert"] {
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff0f0;
+  color: #a12626;
+}
+
+:focus-visible {
+  outline: 3px solid #86a8ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 20px 14px 56px;
+  }
+  article,
+  body > form:not([action="/log-out"]) {
+    padding: 16px;
+  }
+}
