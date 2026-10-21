@@ -12,3 +12,5 @@ export default defineConfig({
     url: process.env["DATABASE_URL"],
   },
 });
+
+// Temporary Cartograph phase 10 source staleness verification.
